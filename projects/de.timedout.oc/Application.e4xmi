@@ -1,11 +1,24 @@
 <?xml version="1.0" encoding="ASCII"?>
-<application:Application xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:application="http://www.eclipse.org/ui/2010/UIModel/application" xmlns:basic="http://www.eclipse.org/ui/2010/UIModel/application/ui/basic" xmi:id="_nGinsJM9EeSnka6GHT3WcQ" elementId="de.timedout.oc.application">
+<application:Application xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:application="http://www.eclipse.org/ui/2010/UIModel/application" xmlns:basic="http://www.eclipse.org/ui/2010/UIModel/application/ui/basic" xmlns:menu="http://www.eclipse.org/ui/2010/UIModel/application/ui/menu" xmi:id="_nGinsJM9EeSnka6GHT3WcQ" elementId="de.timedout.oc.application">
   <children xsi:type="basic:TrimmedWindow" xmi:id="_o5B5AJM9EeSnka6GHT3WcQ" elementId="de.timedout.oc.trimmedwindow.0">
     <children xsi:type="basic:PartStack" xmi:id="_VRUyQJNAEeSnka6GHT3WcQ" elementId="de.timedout.oc.partstack.0">
       <children xsi:type="basic:Part" xmi:id="_V0tMIJNAEeSnka6GHT3WcQ" elementId="de.timedout.oc.part.browser" contributionURI="bundleclass://de.timedout.oc/de.timedout.oc.browser.BrowserPart" label="Browser"/>
     </children>
-    <mainMenu xmi:id="_jDZbAJNAEeSnka6GHT3WcQ" elementId="de.timedout.oc.menu.0"/>
+    <mainMenu xmi:id="_jDZbAJNAEeSnka6GHT3WcQ" elementId="de.timedout.oc.menu.0">
+      <children xsi:type="menu:Menu" xmi:id="_7IE20JNSEeSnka6GHT3WcQ" elementId="de.timedout.oc.menu.browser" label="Browser">
+        <children xsi:type="menu:HandledMenuItem" xmi:id="_9-CXUJNSEeSnka6GHT3WcQ" elementId="de.timedout.oc.handledmenuitem.parent" label="[..] Parent" command="_zGbUkJNSEeSnka6GHT3WcQ"/>
+      </children>
+    </mainMenu>
   </children>
+  <handlers xmi:id="_k20bQJNSEeSnka6GHT3WcQ" elementId="de.timedout.oc.handler.parentCommand" contributionURI="bundleclass://de.timedout.oc/de.timedout.oc.browser.handlers.ParentHandler" command="_zGbUkJNSEeSnka6GHT3WcQ"/>
+  <bindingTables xmi:id="_ew93UJNSEeSnka6GHT3WcQ" elementId="" bindingContext="_dGzbkJNSEeSnka6GHT3WcQ">
+    <bindings xmi:id="_hpqiwJNSEeSnka6GHT3WcQ" elementId="de.timedout.oc.keybinding.parent" keySequence="ARROW_LEFT" command="_zGbUkJNSEeSnka6GHT3WcQ"/>
+  </bindingTables>
+  <rootContext xmi:id="_dGzbkJNSEeSnka6GHT3WcQ" elementId="org.eclipse.ui.contexts.dialogAndWindow" name="In Dialog and Windows">
+    <children xmi:id="_dGzbkZNSEeSnka6GHT3WcQ" elementId="org.eclipse.ui.contexts.window" name="In Windows"/>
+    <children xmi:id="_dGzbkpNSEeSnka6GHT3WcQ" elementId="org.eclipse.ui.contexts.dialog" name="In Dialogs"/>
+  </rootContext>
+  <commands xmi:id="_zGbUkJNSEeSnka6GHT3WcQ" elementId="de.timedout.oc.command.parentCommand" commandName="Parent Command"/>
   <addons xmi:id="_nGinsZM9EeSnka6GHT3WcQ" elementId="org.eclipse.e4.core.commands.service" contributionURI="bundleclass://org.eclipse.e4.core.commands/org.eclipse.e4.core.commands.CommandServiceAddon"/>
   <addons xmi:id="_nGinspM9EeSnka6GHT3WcQ" elementId="org.eclipse.e4.ui.contexts.service" contributionURI="bundleclass://org.eclipse.e4.ui.services/org.eclipse.e4.ui.services.ContextServiceAddon"/>
   <addons xmi:id="_nGins5M9EeSnka6GHT3WcQ" elementId="org.eclipse.e4.ui.bindings.service" contributionURI="bundleclass://org.eclipse.e4.ui.bindings/org.eclipse.e4.ui.bindings.BindingServiceAddon"/>

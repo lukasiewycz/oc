@@ -1,7 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.4"?>
 <plugin>
-
+	<extension id="keybindingfix" point="org.eclipse.e4.workbench.model">
+		<processor
+			beforefragment="true"
+			class="com.mgmtp.a12.melies.app.BindingContextFixModelProcessor">
+		</processor>
+		<!-- beforefragment="true" : this is important to ensure that it's run before org.eclipse.ui.internal.BindingToModelProcessor -->
+		<!-- class: please use your own fully qualified class here -->
+	</extension>
    <extension
          id="product"
          point="org.eclipse.core.runtime.products">
