@@ -6,19 +6,23 @@
     </children>
     <mainMenu xmi:id="_jDZbAJNAEeSnka6GHT3WcQ" elementId="de.timedout.oc.menu.0">
       <children xsi:type="menu:Menu" xmi:id="_7IE20JNSEeSnka6GHT3WcQ" elementId="de.timedout.oc.menu.browser" label="Browser">
-        <children xsi:type="menu:HandledMenuItem" xmi:id="_9-CXUJNSEeSnka6GHT3WcQ" elementId="de.timedout.oc.handledmenuitem.parent" label="[..] Parent" command="_zGbUkJNSEeSnka6GHT3WcQ"/>
+        <children xsi:type="menu:HandledMenuItem" xmi:id="_9-CXUJNSEeSnka6GHT3WcQ" elementId="de.timedout.oc.handledmenuitem.parent" label="Go to Parent Directory" command="_zGbUkJNSEeSnka6GHT3WcQ"/>
+        <children xsi:type="menu:HandledMenuItem" xmi:id="_jfsxcJR9EeSnka6GHT3WcQ" elementId="de.timedout.oc.handledmenuitem.goToSelectedDirectory" label="Go to Selected Directory" command="_cnarAJR9EeSnka6GHT3WcQ"/>
       </children>
     </mainMenu>
   </children>
-  <handlers xmi:id="_k20bQJNSEeSnka6GHT3WcQ" elementId="de.timedout.oc.handler.parentCommand" contributionURI="bundleclass://de.timedout.oc/de.timedout.oc.browser.handlers.ParentHandler" command="_zGbUkJNSEeSnka6GHT3WcQ"/>
+  <handlers xmi:id="_k20bQJNSEeSnka6GHT3WcQ" elementId="de.timedout.oc.handler.parentCommand" contributionURI="bundleclass://de.timedout.oc/de.timedout.oc.browser.handlers.ParentDirectoryHandler" command="_zGbUkJNSEeSnka6GHT3WcQ"/>
+  <handlers xmi:id="_kKeMwJR9EeSnka6GHT3WcQ" elementId="de.timedout.oc.handler.changeDirectoryCommand" contributionURI="bundleclass://de.timedout.oc/de.timedout.oc.browser.handlers.ChangeDirectoryHandler" command="_cnarAJR9EeSnka6GHT3WcQ"/>
   <bindingTables xmi:id="_ew93UJNSEeSnka6GHT3WcQ" elementId="" bindingContext="_dGzbkJNSEeSnka6GHT3WcQ">
     <bindings xmi:id="_hpqiwJNSEeSnka6GHT3WcQ" elementId="de.timedout.oc.keybinding.parent" keySequence="ARROW_LEFT" command="_zGbUkJNSEeSnka6GHT3WcQ"/>
+    <bindings xmi:id="_aSGZcJR9EeSnka6GHT3WcQ" elementId="" keySequence="ARROW_RIGHT" command="_cnarAJR9EeSnka6GHT3WcQ"/>
   </bindingTables>
   <rootContext xmi:id="_dGzbkJNSEeSnka6GHT3WcQ" elementId="org.eclipse.ui.contexts.dialogAndWindow" name="In Dialog and Windows">
     <children xmi:id="_dGzbkZNSEeSnka6GHT3WcQ" elementId="org.eclipse.ui.contexts.window" name="In Windows"/>
     <children xmi:id="_dGzbkpNSEeSnka6GHT3WcQ" elementId="org.eclipse.ui.contexts.dialog" name="In Dialogs"/>
   </rootContext>
   <commands xmi:id="_zGbUkJNSEeSnka6GHT3WcQ" elementId="de.timedout.oc.command.parentCommand" commandName="Parent Command"/>
+  <commands xmi:id="_cnarAJR9EeSnka6GHT3WcQ" elementId="de.timedout.oc.command.changeDirectoryCommand" commandName="Change Directory Command"/>
   <addons xmi:id="_nGinsZM9EeSnka6GHT3WcQ" elementId="org.eclipse.e4.core.commands.service" contributionURI="bundleclass://org.eclipse.e4.core.commands/org.eclipse.e4.core.commands.CommandServiceAddon"/>
   <addons xmi:id="_nGinspM9EeSnka6GHT3WcQ" elementId="org.eclipse.e4.ui.contexts.service" contributionURI="bundleclass://org.eclipse.e4.ui.services/org.eclipse.e4.ui.services.ContextServiceAddon"/>
   <addons xmi:id="_nGins5M9EeSnka6GHT3WcQ" elementId="org.eclipse.e4.ui.bindings.service" contributionURI="bundleclass://org.eclipse.e4.ui.bindings/org.eclipse.e4.ui.bindings.BindingServiceAddon"/>

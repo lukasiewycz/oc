@@ -64,6 +64,9 @@ public class FileHelper {
 
 	public static Image getImage(File file, Display display) {
 		ImageIcon systemIcon = (ImageIcon) FileSystemView.getFileSystemView().getSystemIcon(file);
+		if(systemIcon == null){
+			return null;
+		}
 		java.awt.Image image = systemIcon.getImage();
 		if (image instanceof BufferedImage) {
 			return new Image(display, convertToSWT((BufferedImage) image));

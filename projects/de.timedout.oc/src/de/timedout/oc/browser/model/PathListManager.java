@@ -11,33 +11,33 @@ import java.nio.file.Path;
 import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import ca.odell.glazedlists.EventList;
 import ca.odell.glazedlists.GlazedLists;
 import ca.odell.glazedlists.TransformedList;
 
-public class PathListManager implements ListManager<PathElement> {
+public class PathListManager implements ListManager {
 
 	protected EventList<Element> list;
 	protected PathElement element;
-	protected TransformedList<Element, Element> threadSafeList;
 	protected Thread thread;
 
 	protected boolean isInit = false;
 	protected boolean isConnected = false;
 
 	@Override
-	public synchronized void init(EventList<Element> list, PathElement element) {
+	public synchronized void init(EventList<Element> list, Element element) {
 		if (element == null || !element.isDirectory()) {
 			throw new IllegalArgumentException("PathElement is not a directory");
 		}
 
 		if (!isInit) {
 			this.list = list;
-			this.element = element;
-			threadSafeList = GlazedLists.threadSafeList(list);
+			this.element = (PathElement)element;
 			isInit = true;
 		} else {
 			throw new IllegalArgumentException();
@@ -58,18 +58,36 @@ public class PathListManager implements ListManager<PathElement> {
 
 			thread = new Thread() {
 				public void run() {
+					list.getReadWriteLock().writeLock().lock();
 					list.clear();
 					list.add(new ParentElement());
+					list.getReadWriteLock().writeLock().unlock();
 
 					try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(dir)) {
+						List<PathElement> temp = new ArrayList<PathElement>();
+						
 						for (Path path : directoryStream) {
-							list.getReadWriteLock().writeLock().lock();
-							list.add(create(path, map));
-							list.getReadWriteLock().writeLock().unlock();
+							temp.add(create(path, map));
+							
+							if(temp.size()>1000){
+								list.getReadWriteLock().writeLock().lock();
+								list.addAll(temp);
+								list.getReadWriteLock().writeLock().unlock();
+								temp.clear();
+							}
 							if (!isConnected) {
 								break;
 							}
 						}
+						
+						if(temp.size()>0){
+							list.getReadWriteLock().writeLock().lock();
+							list.addAll(temp);
+							list.getReadWriteLock().writeLock().unlock();
+							temp.clear();
+						}
+						
+						
 					} catch (IOException ex) {
 					}
 

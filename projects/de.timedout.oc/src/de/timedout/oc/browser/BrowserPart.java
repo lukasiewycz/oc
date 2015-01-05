@@ -45,13 +45,26 @@ import de.timedout.oc.browser.columns.ColumnTableFormat;
 import de.timedout.oc.browser.columns.ExtensionColumn;
 import de.timedout.oc.browser.columns.FilesizeColumn;
 import de.timedout.oc.browser.model.Element;
+import de.timedout.oc.browser.model.ListManager;
 import de.timedout.oc.browser.model.PathElement;
 import de.timedout.oc.browser.model.PathListManager;
+import de.timedout.oc.browser.model.SystemElement;
+import de.timedout.oc.browser.model.SystemListManager;
 
 public class BrowserPart {
 
 	@Inject
 	private MDirtyable dirty;
+
+	private Table table;
+
+	private Element location = null;
+
+	private ListManager locationManager = null;
+
+	private ObservableElementList<Element> observableList;
+
+	private DefaultEventTableViewer<Element> tableViewer;
 
 	@PostConstruct
 	public void createComposite(Composite parent) {
@@ -60,8 +73,6 @@ public class BrowserPart {
 		layout.marginWidth = 0;
 
 		parent.setLayout(layout);
-		
-		
 
 		List<BrowserColumn<?>> columnList = new ArrayList<BrowserColumn<?>>();
 		// columnList.add(new TypeColumn());
@@ -70,61 +81,92 @@ public class BrowserPart {
 		columnList.add(new FilesizeColumn());
 
 		EventList<Element> eventList = GlazedLists.eventList(new ArrayList<Element>());
-		
+
 		ObservableElementList.Connector<Element> beanConnector = GlazedLists.beanConnector(Element.class);
-		ObservableElementList<Element> observableList = new ObservableElementList<Element>(eventList, beanConnector);
-		
+		observableList = new ObservableElementList<Element>(eventList, beanConnector);
+
 		FilterList<Element> filterList = new FilterList<Element>(observableList, new Matcher<Element>() {
 			@Override
 			public boolean matches(Element element) {
 				return !element.isHidden() && element.isReadable();
 			}
 		});
-		
+
 		SortedList<Element> sortedList = new SortedList<Element>(filterList, new AdvancedFileTypeComparator());
 
-		Table table = new Table(parent, SWT.NONE | SWT.V_SCROLL | SWT.H_SCROLL | SWT.VIRTUAL | SWT.FULL_SELECTION | SWT.SINGLE);
+		table = new Table(parent, SWT.NONE | SWT.V_SCROLL | SWT.H_SCROLL | SWT.VIRTUAL | SWT.FULL_SELECTION | SWT.SINGLE);
 		table.setLayoutData(new GridData(GridData.FILL_BOTH));
 
 		SortedList<Element> groupingList = new SortedList<Element>(sortedList, new AdvancedFileTypeComparator());
 
-		DefaultEventTableViewer<Element> tableViewer = GlazedListsSWT.eventTableViewerWithThreadProxyList(groupingList, table, new ColumnTableFormat(
-				columnList));
+		tableViewer = GlazedListsSWT.eventTableViewerWithThreadProxyList(groupingList, table, new ColumnTableFormat(columnList));
 		tableViewer.setTableItemConfigurer(new CustomTableItemConfigurer());
 
-		//TableComparatorChooser<Element> tcc = 
+		// TableComparatorChooser<Element> tcc =
 		TableComparatorChooser.install(tableViewer, sortedList, false);
 
 		table.setHeaderVisible(true);
-		//table.setLinesVisible(true);
-		
-		
+		// table.setLinesVisible(true);
+
 		Path directory = Paths.get(System.getProperty("user.home"));
+		setLocation(new PathElement(directory));
+
+		/*
+		 * Thread t = new Thread(){ public void run(){ try {
+		 * Thread.sleep(50000); } catch (InterruptedException e) {
+		 * e.printStackTrace(); } pathListManager.disconnect(); } }; t.start();
+		 */
+
+		/*
+		 * table.addKeyListener(new KeyListener() {
+		 * 
+		 * @Override public void keyReleased(org.eclipse.swt.events.KeyEvent e)
+		 * { System.out.println("release "+e); }
+		 * 
+		 * @Override public void keyPressed(org.eclipse.swt.events.KeyEvent e) {
+		 * System.out.println("pressed "+e); } });
+		 */
+	}
+
+	public void setLocation(Element location) {
+		if (locationManager != null) {
+			locationManager.disconnect();
+		}
+
+		this.location = location;
 		
-		PathListManager pathListManager = new PathListManager();
-		pathListManager.init(observableList, new PathElement(directory));
-		pathListManager.connect();
+		ListManager manager = null;
+		if(location instanceof PathElement){
+			manager = new PathListManager();
+		} else if(location instanceof SystemElement){
+			manager = new SystemListManager();
+		}
 		
-		/*Thread t = new Thread(){
-			public void run(){
-				try {
-					Thread.sleep(50000);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-				pathListManager.disconnect();
-			}
-		};
-		t.start();*/
+		manager.init(observableList, location);
+		manager.connect();
+	}
+
+	public Element getLocation() {
+		return location;
 	}
 
 	@Focus
 	public void setFocus() {
-
+		table.setFocus();
 	}
 
 	@Persist
 	public void save() {
 		dirty.setDirty(false);
+	}
+
+	public Element getCursorElement(){
+		EventList<Element> selected = tableViewer.getSelected();
+		
+		if(selected.size()==1){
+			return selected.get(0);
+		}
+		
+		return null;
 	}
 }

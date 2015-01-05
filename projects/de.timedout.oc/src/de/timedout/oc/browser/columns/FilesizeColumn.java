@@ -16,7 +16,7 @@ public class FilesizeColumn extends AbstractBrowserColumn<Long> {
 		return new CellData<Long>() {
 			@Override
 			public Long getContent() {
-				return (file.isDirectory() ? 0l : file.getFilesize());
+				return Math.max(0l, file.isDirectory() ? 0l : file.getFilesize());
 			}
 
 			@Override
@@ -32,6 +32,10 @@ public class FilesizeColumn extends AbstractBrowserColumn<Long> {
 				}
 				
 			    int digitGroups = (int) (Math.log10(size)/Math.log10(1024));
+			    if(digitGroups < 0 || digitGroups >= units.length){
+			    	digitGroups = 0;
+			    }
+			    
 			    return new DecimalFormat("#,##0.#").format(size/Math.pow(1024, digitGroups)) + " " + units[digitGroups];
 			}
 

@@ -2,9 +2,9 @@ package de.timedout.oc.browser.model;
 
 import ca.odell.glazedlists.EventList;
 
-public interface ListManager<E extends Element> {
+public interface ListManager {
 	
-	public void init(EventList<Element> list, E element);
+	public void init(EventList<Element> list, Element location);
 	
 	public void connect();
 	

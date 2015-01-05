@@ -10,31 +10,35 @@ import org.eclipse.swt.widgets.Display;
 import de.timedout.oc.parts.FileHelper;
 
 public class PathElement extends AbstractElement {
-	
+
 	final protected Path path;
-	
-	public PathElement(Path path){
+
+	public PathElement(Path path) {
 		this.path = path;
 	}
 
-	public Long getFilesize(){
+	public Long getFilesize() {
 		try {
-			if(isDirectory()){
+			if (isDirectory()) {
 				return 0l;
 			}
-			
+
 			return Files.size(path);
 		} catch (IOException e) {
 			return 0l;
 		}
 	}
-	
-	public Path getPath(){
+
+	public Path getPath() {
 		return path;
 	}
-	
-	public String getFilename(){
-		return ""+path.getFileName();
+
+	public String getFilename() {
+		if(path.getParent() != null){
+			return "" + path.getFileName();
+		} else {
+			return path.toString();
+		}
 	}
 
 	@Override
@@ -87,5 +91,15 @@ public class PathElement extends AbstractElement {
 			return false;
 		return true;
 	}
-	
+
+	@Override
+	public Element getParent() {
+		Path parent = path.getParent();
+		if(parent == null){
+			return new SystemElement();
+		} else {
+			return new PathElement(parent);
+		}
+	}
+
 }

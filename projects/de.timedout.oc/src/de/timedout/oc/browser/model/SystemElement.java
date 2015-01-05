@@ -2,7 +2,7 @@ package de.timedout.oc.browser.model;
 
 import org.eclipse.swt.graphics.Image;
 
-public class ParentElement extends AbstractElement {
+public class SystemElement extends AbstractElement {
 
 	@Override
 	public Long getFilesize() {
@@ -11,7 +11,7 @@ public class ParentElement extends AbstractElement {
 
 	@Override
 	public String getFilename() {
-		return "..";
+		return "Root";
 	}
 
 	@Override
@@ -39,6 +39,4 @@ public class ParentElement extends AbstractElement {
 		return null;
 	}
 
-	
-	
 }

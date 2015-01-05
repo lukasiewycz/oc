@@ -22,4 +22,6 @@ public interface Element {
 	
 	public void removePropertyChangeListener(PropertyChangeListener l);
 	
+	public Element getParent();
+	
 }
