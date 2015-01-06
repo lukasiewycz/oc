@@ -17,7 +17,6 @@ public class ParentDirectoryHandler {
 		
 		if(part.getObject() instanceof BrowserPart){
 			BrowserPart browserPart = (BrowserPart)part.getObject();
-			System.out.println("goto parent");
 			
 			Element parent = browserPart.getLocation().getParent();
 			

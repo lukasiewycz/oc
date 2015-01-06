@@ -14,7 +14,9 @@ package de.timedout.oc.browser;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -26,6 +28,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Table;
 
 import ca.odell.glazedlists.EventList;
@@ -33,6 +36,8 @@ import ca.odell.glazedlists.FilterList;
 import ca.odell.glazedlists.GlazedLists;
 import ca.odell.glazedlists.ObservableElementList;
 import ca.odell.glazedlists.SortedList;
+import ca.odell.glazedlists.event.ListEvent;
+import ca.odell.glazedlists.event.ListEventListener;
 import ca.odell.glazedlists.matchers.Matcher;
 import ca.odell.glazedlists.swt.DefaultEventTableViewer;
 import ca.odell.glazedlists.swt.GlazedListsSWT;
@@ -45,7 +50,8 @@ import de.timedout.oc.browser.columns.ColumnTableFormat;
 import de.timedout.oc.browser.columns.ExtensionColumn;
 import de.timedout.oc.browser.columns.FilesizeColumn;
 import de.timedout.oc.browser.model.Element;
-import de.timedout.oc.browser.model.ListManager;
+import de.timedout.oc.browser.model.LocationMediator;
+import de.timedout.oc.browser.model.LocationMediator.PopulateListener;
 import de.timedout.oc.browser.model.PathElement;
 import de.timedout.oc.browser.model.PathListManager;
 import de.timedout.oc.browser.model.SystemElement;
@@ -60,9 +66,11 @@ public class BrowserPart {
 
 	private Element location = null;
 
-	private ListManager locationManager = null;
+	private LocationMediator locationManager = null;
 
 	private ObservableElementList<Element> observableList;
+	
+	private SortedList<Element> sortedList;
 
 	private DefaultEventTableViewer<Element> tableViewer;
 
@@ -92,7 +100,7 @@ public class BrowserPart {
 			}
 		});
 
-		SortedList<Element> sortedList = new SortedList<Element>(filterList, new AdvancedFileTypeComparator());
+		sortedList = new SortedList<Element>(filterList, new AdvancedFileTypeComparator());
 
 		table = new Table(parent, SWT.NONE | SWT.V_SCROLL | SWT.H_SCROLL | SWT.VIRTUAL | SWT.FULL_SELECTION | SWT.SINGLE);
 		table.setLayoutData(new GridData(GridData.FILL_BOTH));
@@ -101,9 +109,12 @@ public class BrowserPart {
 
 		tableViewer = GlazedListsSWT.eventTableViewerWithThreadProxyList(groupingList, table, new ColumnTableFormat(columnList));
 		tableViewer.setTableItemConfigurer(new CustomTableItemConfigurer());
+		
 
 		// TableComparatorChooser<Element> tcc =
 		TableComparatorChooser.install(tableViewer, sortedList, false);
+		
+		
 
 		table.setHeaderVisible(true);
 		// table.setLinesVisible(true);
@@ -126,23 +137,84 @@ public class BrowserPart {
 		 * @Override public void keyPressed(org.eclipse.swt.events.KeyEvent e) {
 		 * System.out.println("pressed "+e); } });
 		 */
+		
+		
+		/*EventList<Element> list = tableViewer.getSelected();
+		
+		list.addListEventListener(new ListEventListener<Element>() {
+			@Override
+			public void listChanged(ListEvent<Element> event) {
+				if(!list.isEmpty()){
+					Element element = list.get(0);
+					selectionCache.put(location, element);
+				}
+			}	
+		});*/
+		
 	}
+	
+	Map<Element,Element> selectionCache = new HashMap<Element,Element>();
 
 	public void setLocation(Element location) {
+		if (this.location != null){
+			System.out.println(this.location+" "+location);
+		}
+		
+		if (this.location != null && location.equals(this.location.getParent())){ // parent navigation
+			System.out.println(this.location+" "+location);
+			selectionCache.put(location, this.location);
+		}
+		
 		if (locationManager != null) {
 			locationManager.disconnect();
 		}
 
 		this.location = location;
 		
-		ListManager manager = null;
+		LocationMediator manager = null;
 		if(location instanceof PathElement){
 			manager = new PathListManager();
 		} else if(location instanceof SystemElement){
 			manager = new SystemListManager();
+		} else {
+			return;
 		}
 		
 		manager.init(observableList, location);
+		
+		manager.addPopulateListener(new PopulateListener() {
+			@Override
+			public void finished() {
+				Display.getDefault().asyncExec(new Runnable() {
+					@Override
+					public void run() {
+						observableList.getReadWriteLock().writeLock().lock();
+						//table.select(1);
+						table.setFocus();
+						
+						EventList<Element> list = tableViewer.getTogglingSelected();
+						
+						Element selectionItem = selectionCache.get(location);
+						if(selectionItem != null && observableList.contains(selectionItem)){
+							list.add(selectionItem);
+						}
+						
+						
+						
+						
+						/*System.out.println(table.getSelectionIndex()+" "+table.getItem(table.getSelectionIndex()));
+						table.showItem(table.getItem(table.getSelectionIndex()));
+						
+						System.out.println(observableList.get(1));*/
+						observableList.getReadWriteLock().writeLock().unlock();
+					}
+				});
+				
+				
+			}
+		});
+		
+		
 		manager.connect();
 	}
 
