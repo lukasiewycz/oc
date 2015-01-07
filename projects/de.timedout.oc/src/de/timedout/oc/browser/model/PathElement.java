@@ -104,7 +104,7 @@ public class PathElement extends AbstractElement {
 
 	@Override
 	public String toString() {
-		return "PathElement [path=" + path + "]";
+		return path.toString();
 	}
 	
 	

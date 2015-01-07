@@ -63,6 +63,9 @@ public class SystemElement extends AbstractElement {
 		return true;
 	}
 	
-	
+	@Override
+	public String toString() {
+		return "System";
+	}
 
 }
