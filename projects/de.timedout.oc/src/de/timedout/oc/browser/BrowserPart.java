@@ -11,6 +11,8 @@
  *******************************************************************************/
 package de.timedout.oc.browser;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -25,8 +27,6 @@ import org.eclipse.e4.ui.di.Focus;
 import org.eclipse.e4.ui.di.Persist;
 import org.eclipse.e4.ui.model.application.ui.MDirtyable;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.PaintEvent;
-import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -77,6 +77,8 @@ public class BrowserPart {
 	private ObservableElementList<Element> observableList;
 
 	private SortedList<Element> sortedList;
+	
+	private SortedList<Element> groupingList;
 
 	private DefaultEventTableViewer<Element> tableViewer;
 
@@ -120,13 +122,12 @@ public class BrowserPart {
 		table = new Table(parent, SWT.NONE | SWT.V_SCROLL | SWT.H_SCROLL | SWT.VIRTUAL | SWT.FULL_SELECTION | SWT.SINGLE);
 		table.setLayoutData(new GridData(GridData.FILL_BOTH));
 
-		SortedList<Element> groupingList = new SortedList<Element>(sortedList, new AdvancedFileTypeComparator());
+		groupingList = new SortedList<Element>(sortedList, new AdvancedFileTypeComparator());
 
 		tableViewer = GlazedListsSWT.eventTableViewerWithThreadProxyList(groupingList, table, new ColumnTableFormat(columnList));
 		tableViewer.setTableItemConfigurer(new CustomTableItemConfigurer());
 
-		// TableComparatorChooser<Element> tcc =
-		TableComparatorChooser.install(tableViewer, sortedList, false);
+		TableComparatorChooser<Element> tcc = TableComparatorChooser.install(tableViewer, sortedList, false);
 
 		table.setHeaderVisible(true);
 		// table.setLinesVisible(true);
@@ -134,10 +135,7 @@ public class BrowserPart {
 		table.addListener(SWT.Selection, new Listener() {
 			@Override
 			public void handleEvent(Event event) {
-				// parent.setFocus();
-				// label.forceFocus();
-				// table.setFocus();
-				//
+				
 			}
 		});
 
@@ -179,7 +177,44 @@ public class BrowserPart {
 		 * selectionCache.put(location, element); } } });
 		 */
 
+		for (Method method : table.getClass().getDeclaredMethods()) {
+			if (method.toString().toLowerCase().contains("focus")) {
+				System.out.println(method);
+			}
+		}
+
+		try {
+			setTableFocusMethod = table.getClass().getDeclaredMethod("setFocusIndex", Integer.TYPE);
+			setTableFocusMethod.setAccessible(true);
+		} catch (NoSuchMethodException | SecurityException e) {
+			e.printStackTrace();
+		}
+
+		tcc.addSortListener(new Listener() {
+			@Override
+			public void handleEvent(Event arg0) {
+				System.out.println(arg0);
+				observableList.getReadWriteLock().writeLock().lock();
+				try {
+					EventList<Element> list = tableViewer.getSelected();
+					if(list.size()>0){
+						Element e = list.iterator().next();
+						System.out.println(groupingList.indexOf(e));
+						setTableFocusMethod.invoke(table, groupingList.indexOf(e));
+						table.showItem(table.getItem(groupingList.indexOf(e)));
+						table.setFocus();
+						table.redraw();
+					}
+				} catch (IllegalAccessException | InvocationTargetException e) {
+					e.printStackTrace();
+				}
+				observableList.getReadWriteLock().writeLock().unlock();
+				
+			}
+		});
 	}
+
+	Method setTableFocusMethod = null;
 
 	Map<Element, Element> selectionCache = new HashMap<Element, Element>();
 
@@ -229,6 +264,12 @@ public class BrowserPart {
 						try {
 							if (selectionItem != null && observableList.contains(selectionItem)) {
 								list.add(selectionItem);
+								try {
+									setTableFocusMethod.invoke(table, groupingList.indexOf(selectionItem));
+									table.redraw();
+								} catch (IllegalAccessException | InvocationTargetException e) {
+									e.printStackTrace();
+								}
 							} else {
 								list.add(sortedList.get(0));
 							}
